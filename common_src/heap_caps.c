@@ -9,7 +9,7 @@
 #define HEAP_CAPS_UNUSED(x) ((void)x)
 
 
-STATIC mp_obj_t mp_heap_caps_malloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t mp_heap_caps_malloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_size, ARG_caps };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_size,         MP_ARG_INT | MP_ARG_REQUIRED  },
@@ -33,10 +33,10 @@ STATIC mp_obj_t mp_heap_caps_malloc(size_t n_args, const mp_obj_t *pos_args, mp_
     }
 }
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_malloc_obj, 2, mp_heap_caps_malloc);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_malloc_obj, 2, mp_heap_caps_malloc);
 
 
-STATIC mp_obj_t mp_heap_caps_free(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t mp_heap_caps_free(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_buf };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_buf,          MP_ARG_OBJ | MP_ARG_REQUIRED  },
@@ -51,10 +51,10 @@ STATIC mp_obj_t mp_heap_caps_free(size_t n_args, const mp_obj_t *pos_args, mp_ma
     return mp_const_none;
 }
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_free_obj, 1, mp_heap_caps_free);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_free_obj, 1, mp_heap_caps_free);
 
 
-STATIC mp_obj_t mp_heap_caps_realloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t mp_heap_caps_realloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_buf, ARG_size, ARG_caps };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_buf,          MP_ARG_OBJ | MP_ARG_REQUIRED  },
@@ -79,10 +79,10 @@ STATIC mp_obj_t mp_heap_caps_realloc(size_t n_args, const mp_obj_t *pos_args, mp
     }
 }
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_realloc_obj, 3, mp_heap_caps_realloc);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_realloc_obj, 3, mp_heap_caps_realloc);
 
 
-STATIC mp_obj_t mp_heap_caps_aligned_alloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t mp_heap_caps_aligned_alloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     HEAP_CAPS_UNUSED(n_args);
     HEAP_CAPS_UNUSED(pos_args);
     HEAP_CAPS_UNUSED(kw_args);
@@ -90,10 +90,10 @@ STATIC mp_obj_t mp_heap_caps_aligned_alloc(size_t n_args, const mp_obj_t *pos_ar
     return mp_const_none;
 }
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_aligned_alloc_obj, 3, mp_heap_caps_aligned_alloc);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_aligned_alloc_obj, 3, mp_heap_caps_aligned_alloc);
 
 
-STATIC mp_obj_t mp_heap_caps_aligned_calloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t mp_heap_caps_aligned_calloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     HEAP_CAPS_UNUSED(n_args);
     HEAP_CAPS_UNUSED(pos_args);
     HEAP_CAPS_UNUSED(kw_args);
@@ -102,10 +102,10 @@ STATIC mp_obj_t mp_heap_caps_aligned_calloc(size_t n_args, const mp_obj_t *pos_a
 }
 
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_aligned_calloc_obj, 4, mp_heap_caps_aligned_calloc);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_aligned_calloc_obj, 4, mp_heap_caps_aligned_calloc);
 
 
-STATIC mp_obj_t mp_heap_caps_calloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t mp_heap_caps_calloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     HEAP_CAPS_UNUSED(n_args);
     HEAP_CAPS_UNUSED(pos_args);
     HEAP_CAPS_UNUSED(kw_args);
@@ -113,10 +113,10 @@ STATIC mp_obj_t mp_heap_caps_calloc(size_t n_args, const mp_obj_t *pos_args, mp_
     return mp_const_none;
 }
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_calloc_obj, 3, mp_heap_caps_calloc);
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_calloc_obj, 3, mp_heap_caps_calloc);
 
 
-STATIC const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
+static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),                            MP_OBJ_NEW_QSTR(MP_QSTR_heap_caps)                         },
     { MP_ROM_QSTR(MP_QSTR_malloc),                              (mp_obj_t)&mp_heap_caps_malloc_obj                         },
     { MP_ROM_QSTR(MP_QSTR_free),                                (mp_obj_t)&mp_heap_caps_free_obj                           },
@@ -126,7 +126,7 @@ STATIC const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_calloc),                              (mp_obj_t)&mp_heap_caps_calloc_obj                         }
 };
 
-STATIC MP_DEFINE_CONST_DICT(mp_module_heap_caps_globals, mp_module_heap_caps_globals_table);
+static MP_DEFINE_CONST_DICT(mp_module_heap_caps_globals, mp_module_heap_caps_globals_table);
 
 
 const mp_obj_module_t mp_module_heap_caps = {
