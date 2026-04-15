@@ -115,6 +115,33 @@ static mp_obj_t mp_heap_caps_calloc(size_t n_args, const mp_obj_t *pos_args, mp_
 
 static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_calloc_obj, 3, mp_heap_caps_calloc);
 
+static mp_obj_t mp_heap_caps_get_free_size(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    HEAP_CAPS_UNUSED(n_args);
+    HEAP_CAPS_UNUSED(pos_args);
+    HEAP_CAPS_UNUSED(kw_args);
+    mp_raise_msg(&mp_type_NotImplementedError, MP_ERROR_TEXT("heap_caps_get_free_size is not available for this MCU"));
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_free_size_obj, 1, mp_heap_caps_get_free_size);
+
+static mp_obj_t mp_heap_caps_get_total_size(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    HEAP_CAPS_UNUSED(n_args);
+    HEAP_CAPS_UNUSED(pos_args);
+    HEAP_CAPS_UNUSED(kw_args);
+    mp_raise_msg(&mp_type_NotImplementedError, MP_ERROR_TEXT("heap_caps_get_total_size is not available for this MCU"));
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_total_size_obj, 1, mp_heap_caps_get_total_size);
+
+static mp_obj_t mp_heap_caps_get_largest_free_block(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    HEAP_CAPS_UNUSED(n_args);
+    HEAP_CAPS_UNUSED(pos_args);
+    HEAP_CAPS_UNUSED(kw_args);
+    mp_raise_msg(&mp_type_NotImplementedError, MP_ERROR_TEXT("heap_caps_get_largest_free_block is not available for this MCU"));
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_largest_free_block_obj, 1, mp_heap_caps_get_largest_free_block);
+
 
 static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),                            MP_OBJ_NEW_QSTR(MP_QSTR_heap_caps)                         },
@@ -123,7 +150,10 @@ static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_realloc),                             (mp_obj_t)&mp_heap_caps_realloc_obj                        },
     { MP_ROM_QSTR(MP_QSTR_aligned_alloc),                       (mp_obj_t)&mp_heap_caps_aligned_alloc_obj                  },
     { MP_ROM_QSTR(MP_QSTR_aligned_calloc),                      (mp_obj_t)&mp_heap_caps_aligned_calloc_obj                 },
-    { MP_ROM_QSTR(MP_QSTR_calloc),                              (mp_obj_t)&mp_heap_caps_calloc_obj                         }
+    { MP_ROM_QSTR(MP_QSTR_calloc),                              (mp_obj_t)&mp_heap_caps_calloc_obj                         },
+    { MP_ROM_QSTR(MP_QSTR_get_free_size),                        (mp_obj_t)&mp_heap_caps_get_free_size_obj                   },
+    { MP_ROM_QSTR(MP_QSTR_get_total_size),                       (mp_obj_t)&mp_heap_caps_get_total_size_obj                  },
+    { MP_ROM_QSTR(MP_QSTR_get_largest_free_block),               (mp_obj_t)&mp_heap_caps_get_largest_free_block_obj          },
 };
 
 static MP_DEFINE_CONST_DICT(mp_module_heap_caps_globals, mp_module_heap_caps_globals_table);

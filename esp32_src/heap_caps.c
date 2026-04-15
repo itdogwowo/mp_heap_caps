@@ -200,6 +200,48 @@ static mp_obj_t mp_heap_caps_calloc(size_t n_args, const mp_obj_t *pos_args, mp_
 
 static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_calloc_obj, 3, mp_heap_caps_calloc);
 
+static mp_obj_t mp_heap_caps_get_free_size(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_caps };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_caps, MP_ARG_INT | MP_ARG_REQUIRED },
+    };
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    uint32_t caps = (uint32_t)args[ARG_caps].u_int;
+    return mp_obj_new_int_from_uint(heap_caps_get_free_size(caps));
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_free_size_obj, 1, mp_heap_caps_get_free_size);
+
+static mp_obj_t mp_heap_caps_get_total_size(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_caps };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_caps, MP_ARG_INT | MP_ARG_REQUIRED },
+    };
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    uint32_t caps = (uint32_t)args[ARG_caps].u_int;
+    return mp_obj_new_int_from_uint(heap_caps_get_total_size(caps));
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_total_size_obj, 1, mp_heap_caps_get_total_size);
+
+static mp_obj_t mp_heap_caps_get_largest_free_block(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_caps };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_caps, MP_ARG_INT | MP_ARG_REQUIRED },
+    };
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    uint32_t caps = (uint32_t)args[ARG_caps].u_int;
+    return mp_obj_new_int_from_uint(heap_caps_get_largest_free_block(caps));
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_largest_free_block_obj, 1, mp_heap_caps_get_largest_free_block);
+
 
 static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),                            MP_OBJ_NEW_QSTR(MP_QSTR_heap_caps)                         },
@@ -209,6 +251,9 @@ static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_aligned_alloc),                       (mp_obj_t)&mp_heap_caps_aligned_alloc_obj                  },
     { MP_ROM_QSTR(MP_QSTR_aligned_calloc),                      (mp_obj_t)&mp_heap_caps_aligned_calloc_obj                 },
     { MP_ROM_QSTR(MP_QSTR_calloc),                              (mp_obj_t)&mp_heap_caps_calloc_obj                         },
+    { MP_ROM_QSTR(MP_QSTR_get_free_size),                        (mp_obj_t)&mp_heap_caps_get_free_size_obj                   },
+    { MP_ROM_QSTR(MP_QSTR_get_total_size),                       (mp_obj_t)&mp_heap_caps_get_total_size_obj                  },
+    { MP_ROM_QSTR(MP_QSTR_get_largest_free_block),               (mp_obj_t)&mp_heap_caps_get_largest_free_block_obj          },
     { MP_ROM_QSTR(MP_QSTR_CAP_EXEC),                            MP_ROM_INT(MALLOC_CAP_EXEC)                      },
     { MP_ROM_QSTR(MP_QSTR_CAP_32BIT),                           MP_ROM_INT(MALLOC_CAP_32BIT)                     },
     { MP_ROM_QSTR(MP_QSTR_CAP_8BIT),                            MP_ROM_INT(MALLOC_CAP_8BIT)                      },
