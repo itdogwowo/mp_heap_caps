@@ -144,21 +144,19 @@ static mp_obj_t mp_heap_caps_aligned_calloc(size_t n_args, const mp_obj_t *pos_a
     size_t size = (size_t)args[ARG_size].u_int;
     uint32_t caps = (uint32_t)args[ARG_caps].u_int;
 
+    if (count != 0 && size > (SIZE_MAX / count)) {
+        mp_raise_ValueError(MP_ERROR_TEXT("size overflow"));
+    }
+    size_t total_size = count * size;
+
     void *buf = heap_caps_aligned_calloc(alignment, count, size, caps);
 
     if (buf == NULL) {
         return mp_const_none;
     } else {
-        mp_obj_t data = mp_obj_new_list(count, NULL);
-
-        for (int i = 0; i < count; i++) {
-            mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, size, buf));
-            view->typecode |= 0x80; // used to indicate writable buffer
-            mp_obj_list_store(data, mp_obj_new_int(i), MP_OBJ_FROM_PTR(view));
-            buf += size;
-        }
-
-        return data;
+        mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, total_size, buf));
+        view->typecode |= 0x80;
+        return MP_OBJ_FROM_PTR(view);
     }
 }
 
@@ -180,21 +178,19 @@ static mp_obj_t mp_heap_caps_calloc(size_t n_args, const mp_obj_t *pos_args, mp_
     size_t size = (size_t)args[ARG_size].u_int;
     uint32_t caps = (uint32_t)args[ARG_caps].u_int;
 
+    if (count != 0 && size > (SIZE_MAX / count)) {
+        mp_raise_ValueError(MP_ERROR_TEXT("size overflow"));
+    }
+    size_t total_size = count * size;
+
     void *buf = heap_caps_calloc(count, size, caps);
 
     if (buf == NULL) {
         return mp_const_none;
     } else {
-        mp_obj_t data = mp_obj_new_list(count, NULL);
-
-        for (int i = 0; i < count; i++) {
-            mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, size, buf));
-            view->typecode |= 0x80; // used to indicate writable buffer
-            mp_obj_list_store(data, mp_obj_new_int(i), MP_OBJ_FROM_PTR(view));
-            buf += size;
-        }
-
-        return data;
+        mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, total_size, buf));
+        view->typecode |= 0x80;
+        return MP_OBJ_FROM_PTR(view);
     }
 }
 
