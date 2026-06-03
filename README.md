@@ -31,6 +31,13 @@ All allocation functions return a writable `memoryview` on success, or `None` on
 - `heap_caps.aligned_alloc(alignment, size, caps) -> memoryview | None` (ESP32 only)
 - `heap_caps.aligned_calloc(alignment, count, size, caps) -> memoryview | None` (ESP32 only)
 
+### Soft-reset cleanup (ESP32 only)
+
+- `heap_caps.reset() -> None`
+  - Frees all outstanding buffers still tracked from the current (or a prior) session.
+  - Designed to be called from `boot.py` to reclaim heap_caps-allocated memory
+    that was orphaned by a soft reboot (Ctrl+D / `machine.soft_reset()`).
+
 ### Heap statistics (ESP32 only)
 
 - `heap_caps.get_free_size(caps) -> int`
@@ -111,6 +118,16 @@ heap_caps.free(frame)
 ## Safety notes (important)
 
 - You must call `heap_caps.free()` for buffers allocated by this module. They are not managed by MicroPython GC.
+
+- **Soft reboot memory leak**: Because the underlying `heap_caps_*` buffers are outside MicroPython's
+  GC heap, a soft reboot (Ctrl+D / `machine.soft_reset()`) **does not** free them automatically.
+  After a soft reboot, buffers from the prior session become orphans and will leak until the next
+  power cycle. To prevent this, add `heap_caps.reset()` to your `boot.py`:
+  ```python
+  # boot.py
+  import heap_caps
+  heap_caps.reset()
+  ```
 - Only free the original `memoryview` returned by `heap_caps.*alloc*`/`realloc`.
   - Do not pass a slice (e.g. `buf[16:]`) to `heap_caps.free()`. A slice points to an offset address and freeing it is invalid.
   - Do not pass a `bytearray`/`memoryview` that was not allocated by this module.

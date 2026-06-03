@@ -143,6 +143,15 @@ static mp_obj_t mp_heap_caps_get_largest_free_block(size_t n_args, const mp_obj_
 static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_largest_free_block_obj, 1, mp_heap_caps_get_largest_free_block);
 
 
+static mp_obj_t mp_heap_caps_reset(void) {
+    // No-op on common (non-ESP32) builds: m_malloc/m_free are GC-managed
+    // and freed automatically on soft reboot.
+    return mp_const_none;
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_0(mp_heap_caps_reset_obj, mp_heap_caps_reset);
+
+
 static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),                            MP_OBJ_NEW_QSTR(MP_QSTR_heap_caps)                         },
     { MP_ROM_QSTR(MP_QSTR_malloc),                              (mp_obj_t)&mp_heap_caps_malloc_obj                         },
@@ -154,6 +163,7 @@ static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_free_size),                        (mp_obj_t)&mp_heap_caps_get_free_size_obj                   },
     { MP_ROM_QSTR(MP_QSTR_get_total_size),                       (mp_obj_t)&mp_heap_caps_get_total_size_obj                  },
     { MP_ROM_QSTR(MP_QSTR_get_largest_free_block),               (mp_obj_t)&mp_heap_caps_get_largest_free_block_obj          },
+    { MP_ROM_QSTR(MP_QSTR_reset),                               (mp_obj_t)&mp_heap_caps_reset_obj                            },
 };
 
 static MP_DEFINE_CONST_DICT(mp_module_heap_caps_globals, mp_module_heap_caps_globals_table);

@@ -8,6 +8,40 @@
 #include <string.h>
 
 
+// --- Soft-reset-safe allocation tracking ---
+// Static array in BSS survives soft reboot (C globals are not reset).
+// Allows heap_caps.reset() to free orphaned buffers from a prior session.
+#define HEAP_CAPS_MAX_TRACKED 128
+
+static void *tracked_ptrs[HEAP_CAPS_MAX_TRACKED];
+static int tracked_count = 0;
+
+static void track_alloc(void *ptr) {
+    if (ptr != NULL && tracked_count < HEAP_CAPS_MAX_TRACKED) {
+        tracked_ptrs[tracked_count++] = ptr;
+    }
+}
+
+static void untrack_alloc(void *ptr) {
+    for (int i = 0; i < tracked_count; i++) {
+        if (tracked_ptrs[i] == ptr) {
+            tracked_ptrs[i] = tracked_ptrs[--tracked_count];
+            return;
+        }
+    }
+}
+
+static void untrack_all(void) {
+    for (int i = 0; i < tracked_count; i++) {
+        if (tracked_ptrs[i] != NULL) {
+            heap_caps_free(tracked_ptrs[i]);
+        }
+    }
+    tracked_count = 0;
+}
+// --- end tracking ---
+
+
 static mp_obj_t mp_heap_caps_malloc(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_size, ARG_caps };
     static const mp_arg_t allowed_args[] = {
@@ -30,6 +64,7 @@ static mp_obj_t mp_heap_caps_malloc(size_t n_args, const mp_obj_t *pos_args, mp_
 
         mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, size, buf));
         view->typecode |= 0x80; // used to indicate writable buffer
+        track_alloc(buf);
         return MP_OBJ_FROM_PTR(view);
     }
 }
@@ -56,10 +91,12 @@ static mp_obj_t mp_heap_caps_free(size_t n_args, const mp_obj_t *pos_args, mp_ma
 
         for (size_t i = 0; i < seq_len; i++) {
             buf = (mp_obj_array_t *)seq_items[i];
+            untrack_alloc((void *)buf->items);
             heap_caps_free((void *)buf->items);
         }
     } else {
         mp_obj_array_t *buf = (mp_obj_array_t *)args[ARG_buf].u_obj;
+        untrack_alloc((void *)buf->items);
         heap_caps_free((void *)buf->items);
     }
 
@@ -84,11 +121,13 @@ static mp_obj_t mp_heap_caps_realloc(size_t n_args, const mp_obj_t *pos_args, mp
     size_t size = (size_t)args[ARG_size].u_int;
     uint32_t caps = (uint32_t)args[ARG_caps].u_int;
 
+    untrack_alloc((void *)buf->items);
     void *new_buf = heap_caps_realloc((void *)buf->items, size, caps);
 
     if (new_buf == NULL) {
         return mp_const_none;
     } else {
+        track_alloc(new_buf);
         mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, size, new_buf));
         view->typecode |= 0x80; // used to indicate writable buffer
         return MP_OBJ_FROM_PTR(view);
@@ -118,6 +157,7 @@ static mp_obj_t mp_heap_caps_aligned_alloc(size_t n_args, const mp_obj_t *pos_ar
     if (buf == NULL) {
         return mp_const_none;
     } else {
+        track_alloc(buf);
         mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, size, buf));
         view->typecode |= 0x80; // used to indicate writable buffer
         return MP_OBJ_FROM_PTR(view);
@@ -154,6 +194,7 @@ static mp_obj_t mp_heap_caps_aligned_calloc(size_t n_args, const mp_obj_t *pos_a
     if (buf == NULL) {
         return mp_const_none;
     } else {
+        track_alloc(buf);
         mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, total_size, buf));
         view->typecode |= 0x80;
         return MP_OBJ_FROM_PTR(view);
@@ -188,6 +229,7 @@ static mp_obj_t mp_heap_caps_calloc(size_t n_args, const mp_obj_t *pos_args, mp_
     if (buf == NULL) {
         return mp_const_none;
     } else {
+        track_alloc(buf);
         mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(BYTEARRAY_TYPECODE, total_size, buf));
         view->typecode |= 0x80;
         return MP_OBJ_FROM_PTR(view);
@@ -239,6 +281,14 @@ static mp_obj_t mp_heap_caps_get_largest_free_block(size_t n_args, const mp_obj_
 static MP_DEFINE_CONST_FUN_OBJ_KW(mp_heap_caps_get_largest_free_block_obj, 1, mp_heap_caps_get_largest_free_block);
 
 
+static mp_obj_t mp_heap_caps_reset(void) {
+    untrack_all();
+    return mp_const_none;
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_0(mp_heap_caps_reset_obj, mp_heap_caps_reset);
+
+
 static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__),                            MP_OBJ_NEW_QSTR(MP_QSTR_heap_caps)                         },
     { MP_ROM_QSTR(MP_QSTR_malloc),                              (mp_obj_t)&mp_heap_caps_malloc_obj                         },
@@ -250,6 +300,7 @@ static const mp_map_elem_t mp_module_heap_caps_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_free_size),                        (mp_obj_t)&mp_heap_caps_get_free_size_obj                   },
     { MP_ROM_QSTR(MP_QSTR_get_total_size),                       (mp_obj_t)&mp_heap_caps_get_total_size_obj                  },
     { MP_ROM_QSTR(MP_QSTR_get_largest_free_block),               (mp_obj_t)&mp_heap_caps_get_largest_free_block_obj          },
+    { MP_ROM_QSTR(MP_QSTR_reset),                               (mp_obj_t)&mp_heap_caps_reset_obj                            },
     { MP_ROM_QSTR(MP_QSTR_CAP_EXEC),                            MP_ROM_INT(MALLOC_CAP_EXEC)                      },
     { MP_ROM_QSTR(MP_QSTR_CAP_32BIT),                           MP_ROM_INT(MALLOC_CAP_32BIT)                     },
     { MP_ROM_QSTR(MP_QSTR_CAP_8BIT),                            MP_ROM_INT(MALLOC_CAP_8BIT)                      },
